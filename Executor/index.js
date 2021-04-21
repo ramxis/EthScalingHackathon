@@ -6,7 +6,10 @@ const ethers = require('ethers');
 const providers = require('ethers').providers;
 const config = require("./config");
 
-const provider = new providers.JsonRpcProvider();
+const GANACHE_URL = (process.env.GANACHE_URL ? process.env.GANACHE_URL : 'http://localhost:8545');
+const PUBLISHER_URL = (process.env.PUBLISHER_URL ? process.env.PUBLISHER_URL : config.publisher_url);
+
+const provider = new providers.JsonRpcProvider(GANACHE_URL);
 
 // TODO: This will be removed at a later point in time -----
 var privateKey = "0x055652e9cf0d7041fd22b47eb736c72721275b2dd4ca26f8e878df80e15f063c";
@@ -18,7 +21,7 @@ const server = new JSONRPCServer();
 
 // json-rpc client in order to send data to the publisher
 const client = new JSONRPCClient((jsonRPCRequest) =>
-  fetch(`${config.publisher_url}/json-rpc`, {
+  fetch(`${PUBLISHER_URL}/json-rpc`, {
     method: "POST",
     headers: {
       "content-type": "application/json",

@@ -1,7 +1,7 @@
 var config = {};
 
-config.port = 80;
+config.port = 8080;
 
-config.publisher_url = "http://localhost:8080";
+config.publisher_url = "http://localhost:8081";
 
 module.exports = config;
