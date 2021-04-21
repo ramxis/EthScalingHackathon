@@ -11,12 +11,6 @@ const PUBLISHER_URL = (process.env.PUBLISHER_URL ? process.env.PUBLISHER_URL : c
 
 const provider = new providers.JsonRpcProvider(GANACHE_URL);
 
-// TODO: This will be removed at a later point in time -----
-var privateKey = "0x055652e9cf0d7041fd22b47eb736c72721275b2dd4ca26f8e878df80e15f063c";
-var wallet = new ethers.Wallet(privateKey, provider);
-console.log("Address: " + wallet.address);
-// -----
-
 const server = new JSONRPCServer();
 
 // json-rpc client in order to send data to the publisher
@@ -112,7 +106,7 @@ server.addMethod("eth_sendRawTransaction", async (rawTransactions) => {
   // console.log('Balance (1):', balance.toString());
   // balance = await provider.getBalance('0xA9cc08841d5a533841a6B7A5E0dcD72A743E356A');
   // console.log('Balance (2)', balance.toString());
-  return '' //balance.toString();
+  return '';
 })
 
 const app = express();
