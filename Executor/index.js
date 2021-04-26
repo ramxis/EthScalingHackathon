@@ -11,6 +11,12 @@ const PUBLISHER_URL = (process.env.PUBLISHER_URL ? process.env.PUBLISHER_URL : c
 
 const provider = new providers.JsonRpcProvider(GANACHE_URL);
 
+const executor_wallet = new ethers.Wallet('0xd6a60e5456f19647625ff5ee67a7f043905806b9ecf26fe8637bb511321c20b5');
+executor_wallet.getAddress()
+  .then((address) => {
+    console.log('My address:', address);
+  })
+
 const server = new JSONRPCServer();
 
 // json-rpc client in order to send data to the publisher
@@ -33,27 +39,30 @@ const client = new JSONRPCClient((jsonRPCRequest) =>
   })
 );
 
-// First parameter is a method name.
-// Second parameter is a method itself.
-// A method takes JSON-RPC params and returns a result.
-// It can also return a promise of the result.
-server.addMethod("echo", ({text}) => {
-    console.log(text);
-    return text;
-});
-
-server.addMethod("log", ({ message }) => console.log(message));
+function getStateRoot() {
+  return provider.getBlockNumber()
+    .then((blocknumber) => provider.send('eth_getBlockByNumber', [ethers.utils.hexValue(blocknumber), true]))
+    .then((block) => block.stateRoot);
+}
 
 server.addMethod("eth_sendRawTransaction", async (rawTransactions) => {
   console.log(`Invoking eth_sendRawTransaction with ${rawTransactions} as parameter`);
+
+  // get the old state root before executing transactions
+  // let blocknumber = await provider.getBlockNumber();
+  // let block = await provider.send('eth_getBlockByNumber', [ethers.utils.hexValue(blocknumber), true]);
+  // const oldStateRoot = block.stateRoot;
+  const oldStateRoot = await getStateRoot();
+  console.log('Old State Root:', oldStateRoot);
+
+  // execute one transaction after the other
   let receipt;
   for (let tx of rawTransactions) {
     console.log(`Sending transaction ${tx} to process`);
     try {
       receipt = await provider.sendTransaction(tx);
     } catch (e) {
-      console.log(e.reason);
-      console.log(e.code);
+      console.log(e.error.data);
       console.log();
       continue;
     }   
@@ -61,31 +70,37 @@ server.addMethod("eth_sendRawTransaction", async (rawTransactions) => {
     await provider.waitForTransaction(receipt.hash); 
   }
 
-  let blocknumber = await provider.getBlockNumber();
-  // let blockheader = await provider.getBlock(blocknumber);
-  // provider.getBlock doesn't give all the fields backs.
-  const block = await provider.send('eth_getBlockByNumber', [ethers.utils.hexValue(blocknumber), true]);
-  console.log('State Root:', block.stateRoot);
-  const rollupInformation = {
-    stateRoot: block.stateRoot,
-    transactions: rawTransactions
-  }
+  const newStateRoot = await getStateRoot();
 
-  // the rollupInformation has to be send to the publisher
-  client
-    .request("eth_sendRollupInformation", rollupInformation)
-    .then((result) => console.log(result));
-  
+  // time to sign the data
+  // first we hash the data
+  let message_hash = ethers.utils.solidityKeccak256([ "bytes32", "bytes32"], [ oldStateRoot, newStateRoot]);
 
-  // let balance = await provider.getBalance(wallet.address);
-  // console.log('Balance (1):', balance.toString());
-  // balance = await provider.getBalance('0xA9cc08841d5a533841a6B7A5E0dcD72A743E356A');
-  // console.log('Balance (2)', balance.toString());
-  
+  executor_wallet.signMessage(ethers.utils.arrayify(message_hash))
+    .then((signature) => {
+      // (r, s, v)
+      const sig = { 
+        r: signature.slice(0, 66), 
+        s: `0x${signature.slice(66, 130)}`, 
+        v: `0x${signature.slice(130, 132)}`
+      };
+      const rollupInformation = {
+        oldStateRoot,
+        newStateRoot,
+        executorSig: sig,
+        transactions: rawTransactions
+      };
+      client.request("eth_sendRollupInformation", rollupInformation);
+    })
+    .then((result) => console.log(result))
+    .catch((e) => console.log(e));
+
+  // CODE TO BUILD A SIMPLE TRANSFER TX
+  // const wallet = new ethers.Wallet('0x280feae9420dd9de35311ba06cd84f0e76f42648cf402296bd4d620a32adbcb1', provider);
   // let transaction = {
-  //   nonce: 5,
+  //   nonce: 0,
   //   gasLimit: 21000,
-  //   gasPrice: ethers.BigNumber.from("20000000000"),
+  //   gasPrice: 0, //ethers.BigNumber.from("20000000000"),
 
   //   to: "0x036D0e47E9844e6D0fB5BD104043599f889FC215",
 
@@ -97,15 +112,8 @@ server.addMethod("eth_sendRawTransaction", async (rawTransactions) => {
   // let receipt = await wallet.sendTransaction(transaction);
 
   // let signed_tx = await wallet.signTransaction(transaction);
-  // //console.log(signed_tx);
-  // let receipt = await provider.sendTransaction(signed_tx);
-  // let tx_hash = await provider.waitForTransaction(receipt.hash);
-  // console.log(tx_hash);
-
-  // balance = await provider.getBalance(wallet.address);
-  // console.log('Balance (1):', balance.toString());
-  // balance = await provider.getBalance('0xA9cc08841d5a533841a6B7A5E0dcD72A743E356A');
-  // console.log('Balance (2)', balance.toString());
+  // HERE WE GET THE BYTECODE
+  // console.log(signed_tx);
   return '';
 })
 
