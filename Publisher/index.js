@@ -77,10 +77,12 @@ const server = new JSONRPCServer();
 //     });
 // }
 let contractAddress;
+
 server.addMethod("sendContractAddress", async (address) => {
   console.log(address);
   contractAddress = address
 })
+
 server.addMethod("eth_sendRollupInformation", async (rollupInformation) => {
   // console.log(rollupInformation)
   //get provider with lowest gas price
@@ -116,16 +118,18 @@ app.post("/json-rpc", (req, res) => {
   const jsonRPCRequest = req.body;
   // server.receive takes a JSON-RPC request and returns a promise of a JSON-RPC response.
   // Alternatively, you can use server.receiveJSON, which takes JSON string as is (in this case req.body).
-  server.receive(jsonRPCRequest).then((jsonRPCResponse) => {
-    if (jsonRPCResponse) {
-      res.json(jsonRPCResponse);
-    } else {
-      // If response is absent, it was a JSON-RPC notification method.
-      // Respond with no content status (204).
-      res.sendStatus(204);
-    }
-  });
-});
+  server.receive(jsonRPCRequest)
+    .then((jsonRPCResponse) => {
+      if (jsonRPCResponse) {
+        res.json(jsonRPCResponse);
+      } else {
+        // If response is absent, it was a JSON-RPC notification method.
+        // Respond with no content status (204).
+        res.sendStatus(204);
+      }
+    });
+  }
+);
 
 console.log(`Listening on port ${config.port}`);
 app.listen(config.port);
