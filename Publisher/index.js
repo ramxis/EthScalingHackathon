@@ -85,32 +85,13 @@ server.addMethod("eth_sendRollupInformation", async (rollupInformation) => {
   // console.log(rollupInformation)
   //get provider with lowest gas price
   // const provider = await getLowestProvider();
-  //TODO: send information to contract/chain
-
   let abi = [
     "function updateState(bytes32 orderer_r, bytes32 orderer_s, uint8 orderer_v,bytes32 executor_r, bytes32 executor_s, uint8 executor_v, bytes32 oldStorageRoot, bytes32 newStorageRoot) public",
     "function getCurrentStorageRoot() public view returns (bytes32)"
   ];
-  // const eth_provider = new providers.JsonRpcProvider('http://tmpGanache:8545');
-  // const wallet = new ethers.Wallet('0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80', eth_provider);
-  // let contractAddress = "0x447a4f37DdB05341beAf484876a2c729357a966F";
-  // We connect to the Contract using a Provider, so we will only
   // have read-only access to the Contract
   let contract = new ethers.Contract(contractAddress, abi, wallet);
-  // let tx = await contract.updateState(
-  //   rollupInformation.executorSig.r, // needs to be changed to orderer r 
-  //   rollupInformation.executorSig.s, // needs to be changed to orderer s
-  //   rollupInformation.executorSig.v, // needs to be changed to orderer v
-  //   rollupInformation.executorSig.r, 
-  //   rollupInformation.executorSig.s, 
-  //   rollupInformation.executorSig.v,
-  //   rollupInformation.oldStateRoot,
-  //   rollupInformation.newStateRoot,
-  //   {gasLimit: 3000000}
-  // );
-  // await tx.wait();
-  // let root = await contract.getCurrentStorageRoot();
-  // console.log('Current Storage Rott:', root);
+
   contract.updateState(
     rollupInformation.executorSig.r, // needs to be changed to orderer r 
     rollupInformation.executorSig.s, // needs to be changed to orderer s
