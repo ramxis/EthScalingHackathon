@@ -5,13 +5,14 @@ const fetch = require("node-fetch");
 const ethers = require('ethers');
 const providers = require('ethers').providers;
 const config = require("./config");
+const { privkey } = require("./.privkey");
 
 const GANACHE_URL = (process.env.GANACHE_URL ? process.env.GANACHE_URL : 'http://localhost:8545');
 const PUBLISHER_URL = (process.env.PUBLISHER_URL ? process.env.PUBLISHER_URL : config.publisher_url);
 
 const provider = new providers.JsonRpcProvider(GANACHE_URL);
 
-const executor_wallet = new ethers.Wallet('0xd6a60e5456f19647625ff5ee67a7f043905806b9ecf26fe8637bb511321c20b5');
+const executor_wallet = new ethers.Wallet(privkey);
 executor_wallet.getAddress()
   .then((address) => {
     console.log('My address:', address);

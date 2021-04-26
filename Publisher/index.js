@@ -1,18 +1,18 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const { JSONRPCServer } = require("json-rpc-2.0");
-const config = require("./config");
 const ethers = require('ethers');
 const providers = require('ethers').providers;
+
+const config = require("./config");
+const { privkey } = require("./.privkey");
 
 const ETHEREUM_RPC_URL = (process.env.ETHEREUM_RPC_URL ? process.env.ETHEREUM_RPC_URL : config.ethereum_rpc_url);
 const POLYGON_RPC_URL = (process.env.POLYGON_RPC_URL ? process.env.POLYGON_RPC_URL : config.polygon_rpc_url);
 
 const eth_provider = new providers.JsonRpcProvider(ETHEREUM_RPC_URL);
 // const polygon_provider = new providers.JsonRpcProvider(POLYGON_RPC_URL);
-// const signer = eth_provider.getSigner()
-// console.log(signer);
-const wallet = new ethers.Wallet('0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80', eth_provider);
+const wallet = new ethers.Wallet(privkey, eth_provider);
 wallet.getAddress()
   .then((address) => console.log('My address:', address));
 
