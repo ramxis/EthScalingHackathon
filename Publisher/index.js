@@ -93,22 +93,41 @@ server.addMethod("eth_sendRollupInformation", async (rollupInformation) => {
   ];
   // have read-only access to the Contract
   let contract = new ethers.Contract(contractAddress, abi, wallet);
-
-  contract.updateState(
-    rollupInformation.executorSig.r, // needs to be changed to orderer r 
-    rollupInformation.executorSig.s, // needs to be changed to orderer s
-    rollupInformation.executorSig.v, // needs to be changed to orderer v
-    rollupInformation.executorSig.r, 
-    rollupInformation.executorSig.s, 
-    rollupInformation.executorSig.v,
-    rollupInformation.oldStateRoot,
-    rollupInformation.newStateRoot,
-    {gasLimit: 3000000}
-  )
-  .then((tx) => tx.wait())
-  .then(() => contract.getCurrentStorageRoot())
-  .then((storageRoot) => console.log('Current Storage Root:', storageRoot));
-  return ''
+  let oldStorageRoot;
+  
+  return contract.getCurrentStorageRoot()
+    .then((storageRoot) => {
+      oldStorageRoot = storageRoot;
+      return contract.populateTransaction.updateState(
+        rollupInformation.executorSig.r, // TODO: needs to be changed to orderer r 
+        rollupInformation.executorSig.s, // TODO: needs to be changed to orderer s
+        rollupInformation.executorSig.v, // TODO: needs to be changed to orderer v
+        rollupInformation.executorSig.r, 
+        rollupInformation.executorSig.s, 
+        rollupInformation.executorSig.v,
+        rollupInformation.oldStateRoot,
+        rollupInformation.newStateRoot,
+        {gasLimit: 3000000}
+      )
+    })
+    .then((populated_tx) => {
+      // adding the transaction data to the data field. They won't appear as parameters in the contract
+      for (let tx of rollupInformation.transactions) {
+        populated_tx.data = `${populated_tx.data}${tx.slice(2)}`;
+      }
+      console.log(populated_tx);
+      return wallet.sendTransaction(populated_tx);
+    })
+    .then((tx) => tx.wait())
+    .then(() => contract.getCurrentStorageRoot())
+    .then((newStorageRoot) => {
+      console.log('Old Storage Root:', oldStorageRoot);
+      console.log('Current Storage Root:', newStorageRoot);
+      // in case the values are equal, the smart contract has not accepted the
+      // transaction and we return false. If the transaction has been accepted,
+      // the oldStorageRoot differes from the new one and we return true.
+      return (oldStorageRoot === newStorageRoot) ? false : true;
+    });
 })
 
 const app = express();
