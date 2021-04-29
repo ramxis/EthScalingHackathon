@@ -58,25 +58,49 @@ server.addMethod("eth_sendRawTransaction", async (rawTransactions) => {
 
   // execute one transaction after the other
   let receipt;
+  let tx_concatet = '';
   for (let tx of rawTransactions) {
     console.log(`Sending transaction ${tx} to process`);
     try {
-      receipt = await provider.sendTransaction(tx);
+      // receipt = await provider.sendTransaction(tx);
+      tx_concatet += tx.slice(2);
     } catch (e) {
       console.log(e.error.data);
       console.log();
       continue;
     }   
     console.log('Waiting to be processed');
-    await provider.waitForTransaction(receipt.hash); 
+    // await provider.waitForTransaction(receipt.hash); 
   }
-
   const newStateRoot = await getStateRoot();
+
+  const data_to_hash = [oldStateRoot, newStateRoot];
+  const data_types = [ "bytes32", "bytes32"];
+  // 420 / 2 = 210
+  // since it's counting characters, we need to divide by two in order to 
+  // get the byte count
+  let tx_concat_length = tx_concatet.length / 2;
+  while (tx_concat_length >= 32) {
+    data_to_hash.push(`0x${tx_concatet.slice(0, 64)}`);
+    data_types.push("bytes32");
+    tx_concatet = tx_concatet.slice(64);
+    tx_concat_length -= 32;
+  }
+  if (tx_concat_length > 0) {
+    data_to_hash.push(`0x${tx_concatet}`);
+    data_types.push(`bytes${tx_concat_length}`);
+  }
 
   // time to sign the data
   // first we hash the data
-  let message_hash = ethers.utils.solidityKeccak256([ "bytes32", "bytes32"], [ oldStateRoot, newStateRoot]);
+  // let message_hash = ethers.utils.solidityKeccak256([ "bytes32", "bytes32"], [ oldStateRoot, newStateRoot]);
+  let message_hash = ethers.utils.solidityKeccak256(data_types, data_to_hash);
+  //
+  // https://github.com/trufflesuite/ganache-cli#custom-methods
+  // we can use those special rpc calls, we could make snapshot and see if the contract
+  // accepts the new state. If yes, good, otherwise return to the old state using evm_revert
 
+  // signing the message
   executor_wallet.signMessage(ethers.utils.arrayify(message_hash))
     .then((signature) => {
       // (r, s, v)
@@ -91,8 +115,8 @@ server.addMethod("eth_sendRawTransaction", async (rawTransactions) => {
         executorSig: sig,
         transactions: rawTransactions
       };
-      client.request("eth_sendRollupInformation", rollupInformation);
-    })
+      return client.request("eth_sendRollupInformation", rollupInformation);
+    })// the result says if it has been added to the smart contract or not
     .then((result) => console.log(result))
     .catch((e) => console.log(e));
 
