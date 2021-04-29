@@ -25,8 +25,8 @@ contract ORU {
         bytes32 newStorageRoot
     ) public {
         require(msg.sender == publisher, 'You are not the registered publisher');
-        //TODO: we will add this back in :)
-        // require(currentStorageRoot == oldStorageRoot, 'Given Storage root is wrong');
+        // in case the contract has been just initialized, currentStorageRoot is zero. Therefore the OR 
+        require(currentStorageRoot == oldStorageRoot || currentStorageRoot == 0x0, 'Given Storage root is wrong');
         bytes32 signed_hash;
         assembly {
             let mem_location := 0x100
