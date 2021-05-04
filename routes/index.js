@@ -33,16 +33,18 @@ router.post('/sendtransaction', async(req, res, next) => {
     // let signer = provider.getSigner();
 
 
+    let tx = req.body.tx;
     // console.log(web3);
 
     // console.log(signer);
 
-    let tx = "0x022sd2sa2d32as2da1s2d";
+    // let tx = "0x022sd2sa2d32as2da1s2d";
     //let tx = await signTransaction(ethAddress,"web3.eth.accounts[0]",amount,web3);
     console.log('transaction signed');
+    sendTransaction(tx);
     // console.log(provider.getBlockNumber())
 
-    sendTransaction(tx);
+    // let res = sendTransaction(tx);
     res.send(req.body);
 });
 
@@ -50,14 +52,14 @@ router.post('/sendbatchtransactions', async(req, res, next) => {
 
     console.log("Batching Transactions.....");
 
-    let ethAddress1 = req.body.ethAddress1;
-    let amount1 = req.body.amount1;
-    let ethAddress2 = req.body.ethAddress2;
-    let amount2 = req.body.amount2;
+    let txArray = req.body.tx;
+    // let amount1 = req.body.amount1;
+    // let ethAddress2 = req.body.ethAddress2;
+    // let amount2 = req.body.amount2;
 
-    let web3 = new Web3(Web3.currentProvider);
-    let provider = new ethers.providers.Web3Provider(web3.currentProvider);
-    let signer = provider.getSigner();
+   // let web3 = new Web3(Web3.currentProvider);
+    // let provider = new ethers.providers.Web3Provider(web3.currentProvider);
+    // let signer = provider.getSigner();
 
     console.log(ethAddress1,amount1,ethAddress2,amount2);
     let tx1 =  await signTransaction(ethAddress1,web3.eth.accounts[0],amount1,web3);

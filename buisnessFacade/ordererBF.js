@@ -1,12 +1,13 @@
 
 const sendToExecuter = require('../buisnessActivity/executerClientBA');
-const config = require("../config");
-const EXECUTER_URL = (process.env.EXECUTER_URL ? process.env.EXECUTER_URL : config.executer_url);
+
 
 
 function sendTransaction(signedTx) {
-  console.log(signedTx)
-  return sendToExecuter(EXECUTER_URL,signedTx);
+  console.log(signedTx);
+
+  let tx = `{"jsonrpc":"2.0","method":"eth_sendRawTransaction","params": [${signedTx}],"id":1}`;
+  return sendToExecuter(tx);
 }
 
 function sendBatchTransactions(...batchedTransactions) {
