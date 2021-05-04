@@ -3,7 +3,7 @@ version: "3.9"
 services:
   ganache:
     image: trufflesuite/ganache-cli
-    command: -g 0 --account 0x280feae9420dd9de35311ba06cd84f0e76f42648cf402296bd4d620a32adbcb1,10000000000000000000 --db ./chain/
+    command: -g 0 --account 0x280feae9420dd9de35311ba06cd84f0e76f42648cf402296bd4d620a32adbcb1,10000000000000000000 #--db ./chain/
 
   executor:
     build: ./Executor

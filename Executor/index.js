@@ -62,7 +62,7 @@ server.addMethod("eth_sendRawTransaction", async (rawTransactions) => {
   for (let tx of rawTransactions) {
     console.log(`Sending transaction ${tx} to process`);
     try {
-      // receipt = await provider.sendTransaction(tx);
+      receipt = await provider.sendTransaction(tx);
       tx_concatet += tx.slice(2);
     } catch (e) {
       console.log(e.error.data);
@@ -70,7 +70,7 @@ server.addMethod("eth_sendRawTransaction", async (rawTransactions) => {
       continue;
     }   
     console.log('Waiting to be processed');
-    // await provider.waitForTransaction(receipt.hash); 
+    await provider.waitForTransaction(receipt.hash); 
   }
   const newStateRoot = await getStateRoot();
 
