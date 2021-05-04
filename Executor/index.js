@@ -6,6 +6,7 @@ const ethers = require('ethers');
 const providers = require('ethers').providers;
 const config = require("./config");
 const { privkey } = require("./.privkey");
+const { compressTx } = require("./compressTx");
 
 const GANACHE_URL = (process.env.GANACHE_URL ? process.env.GANACHE_URL : 'http://localhost:8545');
 const PUBLISHER_URL = (process.env.PUBLISHER_URL ? process.env.PUBLISHER_URL : config.publisher_url);
@@ -50,20 +51,18 @@ server.addMethod("eth_sendRawTransaction", async (rawTransactions) => {
   console.log(`Invoking eth_sendRawTransaction with ${rawTransactions} as parameter`);
 
   // get the old state root before executing transactions
-  // let blocknumber = await provider.getBlockNumber();
-  // let block = await provider.send('eth_getBlockByNumber', [ethers.utils.hexValue(blocknumber), true]);
-  // const oldStateRoot = block.stateRoot;
   const oldStateRoot = await getStateRoot();
   console.log('Old State Root:', oldStateRoot);
 
   // execute one transaction after the other
   let receipt;
   let tx_concatet = '';
+  let serialized_tx = '';
+  let compressed_tx = [];
   for (let tx of rawTransactions) {
     console.log(`Sending transaction ${tx} to process`);
     try {
       receipt = await provider.sendTransaction(tx);
-      tx_concatet += tx.slice(2);
     } catch (e) {
       console.log(e.error.data);
       console.log();
@@ -71,6 +70,9 @@ server.addMethod("eth_sendRawTransaction", async (rawTransactions) => {
     }   
     console.log('Waiting to be processed');
     await provider.waitForTransaction(receipt.hash); 
+    serialized_tx = compressTx(tx);
+    compressed_tx.push(serialized_tx);
+    tx_concatet += serialized_tx.slice(2);
   }
   const newStateRoot = await getStateRoot();
 
@@ -113,7 +115,7 @@ server.addMethod("eth_sendRawTransaction", async (rawTransactions) => {
         oldStateRoot,
         newStateRoot,
         executorSig: sig,
-        transactions: rawTransactions
+        transactions: compressed_tx //rawTransactions
       };
       return client.request("eth_sendRollupInformation", rollupInformation);
     })// the result says if it has been added to the smart contract or not
