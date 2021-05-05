@@ -1,5 +1,5 @@
 {
-  "name": "orderer",
+  "name": "front-end",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",

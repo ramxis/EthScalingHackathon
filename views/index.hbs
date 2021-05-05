@@ -1,7 +1,8 @@
 <link rel="stylesheet" href="/css/index.css">
-{{!-- <script src="/util/signTransaction.js"></script> --}}
+<div>
+<script src="/js/app.js"></script>
 <div class="send-single-transaction">
-    <form action="/sendtransaction" method="post">
+    <form action="">
         <h2 class="text-center">Send Transaction</h2>
         <div class="form-group">
             <input type="text" class="form-control" id="toAddress" name="ethAddress" required="required" placeholder='{{ethAddress}} Eth Address'>
@@ -9,15 +10,18 @@
         <div class="form-group">
             <input type="number" class="form-control" id="amount" name="amount" placeholder='{{amount}} Amount in Eth' required="required" ></textarea>
         </div>
+                <div class="form-group">
+            <input type="text" class="form-control" id="toAddress1" name="ethAddress1" required="required" placeholder='{{ethAddress1}} Eth Address 1'>
+        </div>
         <div class="form-group">
-            <button type="submit" class="btn btn-primary btn-block" name="submit1" onclick="signTransaction">Send Transaction</button>
+            <button type="submit" class="btn btn-primary btn-block" name="submit1" onclick="signTransaction()">Send Transaction</button>
         </div>
     </form>
 </div>
 
 <link rel="stylesheet" href="/css/index.css">
 <div class="send-batch-transaction" >
-    <form action="/sendbatchtransactions" method="post">
+    <form action="" >
         <h2 class="text-center">Send Batch Transactions</h2>
         <div class="form-group">
             <input type="text" class="form-control" id="toAddress1" name="ethAddress1" required="required" placeholder='{{ethAddress1}} Eth Address 1'>
@@ -35,4 +39,5 @@
             <button type="submit" class="btn btn-primary btn-block" name="submit2">Send Batch Transaction</button>
         </div>
     </form>
+</div>
 </div>
