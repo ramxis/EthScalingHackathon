@@ -17,14 +17,15 @@ async function signTransaction() {
     const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
     const account = accounts[0];
     var _to = $('#toAddress').val();
-    var _value = $('#amount').val();
+    var _value = web3.utils.toWei($('#amount').val(), "ether");
+    console.log(_value);
     var tx = {
         from: account,
         value: _value,
         // data: func.data,
         to: _to
     }
-    var signedTx = await web3.eth.signTransaction(tx);
+    var signedTx = await web3.eth.sendTransaction(tx);
     console.log(signedTx);
     // // console.log("signing transactions....")
 
