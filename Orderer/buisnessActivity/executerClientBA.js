@@ -15,7 +15,7 @@ fetch(`${EXECUTER_URL}/json-rpc`, {
     // Use client.receive when you received a JSON-RPC response.
     return response
       .json()
-      .then((jsonRPCResponse) => client.receive(jsonRPCResponse));
+      .then((jsonRPCResponse) => executerClient.receive(jsonRPCResponse));
   } else if (jsonRPCRequest.id !== undefined) {
     return Promise.reject(new Error(response.statusText));
   }
@@ -23,15 +23,11 @@ fetch(`${EXECUTER_URL}/json-rpc`, {
 
 // json-rpc client in order to send data to the executer
 const sendToExecuter = (jsonRPCRequest)  => {
-
   //TODO:remove console log
   console.log(jsonRPCRequest);
   executerClient
     .request("eth_sendRawTransaction", jsonRPCRequest)
     .then((result) => console.log(result));
-
-
-
 }
 
 

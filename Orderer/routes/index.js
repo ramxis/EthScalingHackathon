@@ -30,7 +30,9 @@ router.post('/sendtransaction', async(req, res, next) => {
     var tx = {
         from: account,
         value: _value,
-        to: _to
+        to: _to,
+        gasPrice: 0,
+        gasLimit: 21000
     }
 
     var signed_tx = await signer.signTransaction(tx);

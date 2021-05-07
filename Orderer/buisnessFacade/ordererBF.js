@@ -6,7 +6,8 @@ const sendToExecuter = require('../buisnessActivity/executerClientBA');
 function sendTransaction(signedTx) {
   console.log(signedTx);
 
-  let tx = `{"jsonrpc":"2.0","method":"eth_sendRawTransaction","params": [${signedTx}],"id":1}`;
+  // let tx = `{"jsonrpc":"2.0","method":"eth_sendRawTransaction","params": [${signedTx}],"id":1}`;
+  let tx = [ signedTx ];
   return sendToExecuter(tx);
 }
 
@@ -16,7 +17,8 @@ function sendBatchTransactions(...batchedTransactions) {
   //    let tx = `{"jsonrpc":"2.0","method":"eth_sendRawTransaction","params": [${tx}],"id":1}`;
     // sendToExecuter(tx);
   // }
-  let tx = `{"jsonrpc":"2.0","method":"eth_sendRawTransaction","params": [${batchedTransactions}],"id":1}`;
+  // let tx = `{"jsonrpc":"2.0","method":"eth_sendRawTransaction","params": [${batchedTransactions}],"id":1}`;
+  let tx = batchedTransactions;
   return sendToExecuter(tx);
 
 }
