@@ -2,70 +2,73 @@ const { toUtf8CodePoints } = require('@ethersproject/strings');
 const express = require('express');
 const router = express.Router();
 const { ethers } = require("ethers");
-var Web3 = require('web3');
 const {sendTransaction, sendBatchTransactions} = require('../buisnessFacade/ordererBF');
-// const signTransaction = require('../util/signTransaction');
 
-// let web3 = new Web3(Web3.givenProvider);
-// let provider = new ethers.providers.Web3Provider(web3.currentProvider);
-// let signer = provider.getSigner();
+const signer = new ethers.Wallet('2ff716e2adfb575da83db6191bccb4506237050fd924312b80d3665c9ed95741');
+const account = "0x094Ad0423fCEe80bf2193Cefc4D5b7f2Dfc785C5";
 
-// router.get('/', function(req, res, next) {
-//     res.render('index');
-// });
+router.get('/sendtransaction', function(req, res, next) {
 
-// router.get('/sendtransaction', function(req, res, next) {
+    res.send('sendtransaction');
+});
 
-//     res.redirect('sendtransaction');
-// });
+router.get('/sendbatchtransactions', function(req, res, next) {
 
-// router.get('/sendbatchtransactions', function(req, res, next) {
-
-//     console.log("Batching Transactions.....");
-//     res.redirect('sendbatchtransactions');
-// });
+    console.log("Batching Transactions.....");
+    res.send('sendbatchtransactions');
+});
 
 router.post('/sendtransaction', async(req, res, next) => {
-    // console.log('transaction sending', Web3.givenProvider, Web3.currentProvider);
-
-    // let web3 = new Web3(Web3.currentProvider);
-    // let provider = new ethers.providers.Web3Provider(web3.currentProvider);
-    // let signer = provider.getSigner();
 
 
-    let tx = req.body.tx;
-    // console.log(web3);
+    console.log("inside signing transactions");
 
-    // console.log(signer);
 
-    // let tx = "0x022sd2sa2d32as2da1s2d";
-    //let tx = await signTransaction(ethAddress,"web3.eth.accounts[0]",amount,web3);
+    var _to = req.body._to;
+    var _value = ethers.utils.hexlify(req.body._value);
+
+    var tx = {
+        from: account,
+        value: _value,
+        to: _to
+    }
+
+    var signed_tx = await signer.signTransaction(tx);
+
     console.log('transaction signed');
-    sendTransaction(tx);
-    // console.log(provider.getBlockNumber())
 
-    // let res = sendTransaction(tx);
-    res.send(req.body);
+    sendTransaction(signed_tx);
+    res.send(signed_tx);
 });
 
 router.post('/sendbatchtransactions', async(req, res, next) => {
 
     console.log("Batching Transactions.....");
 
-    let txArray = req.body.tx;
-    // let amount1 = req.body.amount1;
-    // let ethAddress2 = req.body.ethAddress2;
-    // let amount2 = req.body.amount2;
 
-   // let web3 = new Web3(Web3.currentProvider);
-    // let provider = new ethers.providers.Web3Provider(web3.currentProvider);
-    // let signer = provider.getSigner();
 
-    console.log(ethAddress1,amount1,ethAddress2,amount2);
-    let tx1 =  await signTransaction(ethAddress1,web3.eth.accounts[0],amount1,web3);
-    let tx2 =  await signTransaction(ethAddress2,web3.eth.accounts[0],amount2,web3);
-    
-    sendBatchTransactions();
+    var _to1 = req.body._to1;
+    var _value1 = ethers.utils.hexlify(req.body._value1);
+    var _to2 = req.body._to2;
+    var _value2 = ethers.utils.hexlify(req.body._value2);
+
+    var tx1 = {
+        from: account,
+        value: _value1,
+        to: _to1
+    }
+
+    var tx2 = {
+        from: account,
+        value: _value2,
+        to: _to2
+    }
+
+    var signed_tx1 = await signer.signTransaction(tx1);
+
+    var signed_tx2 = await signer.signTransaction(tx2);
+    const batched_tx = [ signed_tx1, signed_tx2];
+    sendBatchTransactions(signed_tx1,signed_tx2);
     res.send("sendBatchTransactions");
 });
 

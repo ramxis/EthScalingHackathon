@@ -12,7 +12,12 @@ function sendTransaction(signedTx) {
 
 function sendBatchTransactions(...batchedTransactions) {
   console.log("Batching....");
-  console.log(EXECUTER_URL);
+  // for (let tx of batchedTransactions){
+  //    let tx = `{"jsonrpc":"2.0","method":"eth_sendRawTransaction","params": [${tx}],"id":1}`;
+    // sendToExecuter(tx);
+  // }
+  let tx = `{"jsonrpc":"2.0","method":"eth_sendRawTransaction","params": [${batchedTransactions}],"id":1}`;
+  return sendToExecuter(tx);
 
 }
 
