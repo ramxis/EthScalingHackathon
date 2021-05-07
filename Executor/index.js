@@ -127,4 +127,5 @@ app.post("/json-rpc", (req, res) => {
   });
 });
 
+console.log(`Starting executor on port ${config.port}`);
 app.listen(config.port);

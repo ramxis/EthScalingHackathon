@@ -4,6 +4,8 @@ services:
   ganache:
     image: trufflesuite/ganache-cli
     command: --db ./chain/
+    networks:
+      - hackathon
 
   executor:
     build: ./Executor
@@ -14,7 +16,15 @@ services:
       - 8081:8081
     environment:
       - GANACHE_URL=http://ganache:8545
-      - PUBLISHER_URL=http://publisher:8081
+      - PUBLISHER_URL=http://publisher:8082
+    networks:
+      - hackathon
   
   publisher:
     build: ./Publisher
+    networks:
+      - hackathon
+
+networks:
+  hackathon:
+    name: hackathon
