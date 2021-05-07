@@ -1,0 +1,19 @@
+- Smart Contract
+    - Allow only one publisher to call updateState function
+    - Record Orderer, Executor, and Publisher
+
+- Publisher
+    - Allow messages from one executor - address is recorded in Smart Contract
+
+- Executor
+    - Allow messages from one orderer - address is recorded in Smart Contract
+
+- Watchtower
+    - Create Watchtower who listens on Transactions and replays those
+    - In case of state root differences, send message to Smart Contract
+    - Penalize Executor
+
+- Protocol
+    - Add compression
+    - Transaction fees
+    - Revert state

@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  ganache:
+    image: trufflesuite/ganache-cli
+    command: -g 0 --account 0x280feae9420dd9de35311ba06cd84f0e76f42648cf402296bd4d620a32adbcb1,10000000000000000000 --account 0x2ff716e2adfb575da83db6191bccb4506237050fd924312b80d3665c9ed95741,10000000000000000000 #--db ./chain/
+
+  orderer:
+    build: ./Orderer
+    ports:
+      - 8080:8080
+    environment:
+      - executer_url=http://executor:8080
+
+  executor:
+    build: ./Executor
+    depends_on:
+      - ganache
+      - publisher
+    ports:
+      - 8081:8081
+    environment:
+      - GANACHE_URL=http://ganache:8545
+      - PUBLISHER_URL=http://publisher:8082
+    
+  publisher:
+    build: ./Publisher
+    ports:
+      - 8082:8082
+    environment:
+      - ETHEREUM_RPC_URL=http://tmpGanache:8545
+    
+  tmpGanache:
+    image: trufflesuite/ganache-cli
+    command: -g 0
+    ports:
+      - 8545:8545
+    
