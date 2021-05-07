@@ -4,6 +4,8 @@ services:
   ganache:
     image: trufflesuite/ganache-cli
     command: -g 0 --account 0x280feae9420dd9de35311ba06cd84f0e76f42648cf402296bd4d620a32adbcb1,10000000000000000000 #--db ./chain/
+    networks:
+      - hackathon
 
   executor:
     build: ./Executor
@@ -11,20 +13,30 @@ services:
       - ganache
       - publisher
     ports:
-      - 8080:8080
+      - 8081:8081
     environment:
       - GANACHE_URL=http://ganache:8545
-      - PUBLISHER_URL=http://publisher:8081
+      - PUBLISHER_URL=http://publisher:8082
+    networks:
+      - hackathon
   
   publisher:
     build: ./Publisher
     ports:
-      - 8081:8081
+      - 8082:8082
     environment:
       - ETHEREUM_RPC_URL=http://tmpGanache:8545
+    networks:
+      - hackathon
 
   tmpGanache:
     image: trufflesuite/ganache-cli
     command: -g 0
     ports:
       - 8545:8545
+    networks:
+      - hackathon
+
+networks:
+  hackathon:
+    name: hackathon

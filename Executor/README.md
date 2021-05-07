@@ -11,3 +11,5 @@ for eth_sendRawTransaction
 ## Docker-Compose
 
 just run `docker-compose up -d` in the root folder of the project. Once all container started, execute the curl command.
+
+curl -XPOST -H "content-type: application/json" http://localhost:8080/json-rpc --data '{"jsonrpc":"2.0","method":"test","params": [],"id":1}'
