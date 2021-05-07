@@ -51,19 +51,27 @@ router.post('/sendbatchtransactions', async(req, res, next) => {
 
     var _to1 = req.body._to1;
     var _value1 = ethers.utils.hexlify(req.body._value1);
+    var _nonce1 = req.body._nonce1;
     var _to2 = req.body._to2;
     var _value2 = ethers.utils.hexlify(req.body._value2);
+    var _nonce2 = req.body._nonce2;
 
     var tx1 = {
         from: account,
         value: _value1,
-        to: _to1
+        to: _to1,
+        nonce: _nonce1,
+        gasPrice: 0,
+        gasLimit: 21000
     }
 
     var tx2 = {
         from: account,
         value: _value2,
-        to: _to2
+        to: _to2,
+        nonce: _nonce2,
+        gasPrice: 0,
+        gasLimit: 21000
     }
 
     var signed_tx1 = await signer.signTransaction(tx1);
